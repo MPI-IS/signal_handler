@@ -43,4 +43,10 @@ bool SignalHandler::has_received_sigint()
     return received_sigint_ != 0;
 }
 
+void SignalHandler::reset()
+{
+    SignalHandler::initialize();
+    received_sigint_ = 0;
+}
+
 }  // namespace signal_handler

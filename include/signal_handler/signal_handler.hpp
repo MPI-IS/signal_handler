@@ -38,6 +38,12 @@ public:
      */
     static bool has_received_sigint();
 
+    /**
+     * @brief Reset the status of the signal handler. No signals are considered
+     * caught.
+     */
+    static void reset();
+
 private:
     SignalHandler()
     {
