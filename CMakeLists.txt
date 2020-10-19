@@ -1,70 +1,72 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.10.2)
 project(signal_handler)
 
-# Specify C++ Standard
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED on)
+# Using C++17
+if(NOT CMAKE_C_STANDARD)
+  set(CMAKE_C_STANDARD 99)
+endif()
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 17)
+endif()
 
 # stop build on first error
 string(APPEND CMAKE_CXX_FLAGS " -Wfatal-errors")
 
 
-find_package(catkin REQUIRED)
+################
+# Dependendies #
+################
 
-catkin_package(
-    INCLUDE_DIRS include
-    LIBRARIES signal_handler
-#  CATKIN_DEPENDS
-#  DEPENDS
-)
+find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_python REQUIRED)
+
 
 ###########
-## Build ##
+# Library #
 ###########
 
-include_directories(
-    include
-    ${catkin_INCLUDE_DIRS}
-)
+add_library(
+  ${PROJECT_NAME} SHARED
+  src/signal_handler.cpp
+  src/exceptions.cpp)
+# Add the include dependencies
+target_include_directories(
+  ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                         $<INSTALL_INTERFACE:include>)
+# Export the target.
+ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
+list(APPEND all_targets ${PROJECT_NAME})
+list(APPEND all_target_exports export_${PROJECT_NAME})
 
-add_library(${PROJECT_NAME}
-    src/signal_handler.cpp
-    src/exceptions.cpp
-)
-target_link_libraries(${PROJECT_NAME}
-    ${catkin_LIBRARIES}
-)
 
+########
+# Demo #
+########
 
-# Demo
 add_executable(signal_handler_demo
-    demos/demo.cpp
-)
-target_link_libraries(signal_handler_demo
-    ${catkin_LIBRARIES}
-    signal_handler
-)
+  demos/demo.cpp)
+# save the name for installation
+set(all_targets ${all_targets} signal_handler_demo)
+# dependencies
+target_include_directories(
+  signal_handler_demo
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+  target_link_libraries(signal_handler_demo ${PROJECT_NAME})
 
-#############
-## Install ##
-#############
+  
+#######################
+## Install and export #
+#######################
 
-# Mark libraries for installation
-# See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
-install(TARGETS ${PROJECT_NAME}
-    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
-)
-
-# Mark cpp header files for installation
-install(DIRECTORY include/${PROJECT_NAME}/
-    DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-    FILES_MATCHING PATTERN "*.h"
-)
-
-# Mark executables for installation
-install(TARGETS signal_handler_demo
-    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
+install(DIRECTORY include/ DESTINATION include)
+install(
+  TARGETS ${all_targets}
+  EXPORT ${all_target_exports}
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES
+  DESTINATION include)
+ament_package()
 
