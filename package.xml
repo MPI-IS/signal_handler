@@ -10,7 +10,8 @@
   <author email="felix.widmaier@tue.mpg.de">Felix Widmaier</author>
 
   <buildtool_depend>catkin</buildtool_depend>
-
+  <depend>pybind11_catkin</depend>
+  
   <export>
   </export>
 </package>
