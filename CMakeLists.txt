@@ -12,52 +12,50 @@ endif()
 # stop build on first error
 string(APPEND CMAKE_CXX_FLAGS " -Wfatal-errors")
 
-
-################
-# Dependendies #
-################
+#
+# Dependendies
+#
 
 find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_python REQUIRED)
+find_package(mpi_cmake_modules REQUIRED)
 
+#
+# Library
+#
 
-###########
-# Library #
-###########
-
-add_library(
-  ${PROJECT_NAME} SHARED
-  src/signal_handler.cpp
-  src/exceptions.cpp)
+add_library(${PROJECT_NAME} SHARED src/signal_handler.cpp src/exceptions.cpp)
 # Add the include dependencies
 target_include_directories(
   ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
                          $<INSTALL_INTERFACE:include>)
 # Export the target.
-ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
+ament_export_interfaces(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
 list(APPEND all_targets ${PROJECT_NAME})
 list(APPEND all_target_exports export_${PROJECT_NAME})
 
+#
+# Demo
+#
 
-########
-# Demo #
-########
-
-add_executable(signal_handler_demo
-  demos/demo.cpp)
+add_executable(signal_handler_demo demos/demo.cpp)
 # save the name for installation
 set(all_targets ${all_targets} signal_handler_demo)
 # dependencies
 target_include_directories(
   signal_handler_demo
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
-  target_link_libraries(signal_handler_demo ${PROJECT_NAME})
+         $<INSTALL_INTERFACE:include>)
+target_link_libraries(signal_handler_demo ${PROJECT_NAME})
 
-  
-#######################
-## Install and export #
-#######################
+#
+# Documentation
+#
+build_documentation()
+
+#
+# Install and export
+#
 
 install(DIRECTORY include/ DESTINATION include)
 install(
@@ -69,4 +67,3 @@ install(
   INCLUDES
   DESTINATION include)
 ament_package()
-
