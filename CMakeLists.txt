@@ -18,7 +18,6 @@ string(APPEND CMAKE_CXX_FLAGS " -Wfatal-errors")
 
 find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_python REQUIRED)
-find_package(mpi_cmake_modules REQUIRED)
 
 #
 # Library
@@ -47,11 +46,6 @@ target_include_directories(
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
          $<INSTALL_INTERFACE:include>)
 target_link_libraries(signal_handler_demo ${PROJECT_NAME})
-
-#
-# Documentation
-#
-build_documentation()
 
 #
 # Install and export
