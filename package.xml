@@ -15,7 +15,7 @@
 
   <maintainer email="felix.widmaier@tue.mpg.de">Felix Widmaier</maintainer>
   <license>BSD 3-clause</license>
-  <url type="repository">https://github.com/machines-in-motion/signal_handler</url>
+  <url type="repository">https://github.com/MPI-IS/signal_handler</url>
   <author email="felix.widmaier@tue.mpg.de">Felix Widmaier</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
