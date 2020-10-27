@@ -17,7 +17,6 @@ string(APPEND CMAKE_CXX_FLAGS " -Wfatal-errors")
 #
 
 find_package(ament_cmake REQUIRED)
-find_package(ament_cmake_python REQUIRED)
 
 #
 # Library
