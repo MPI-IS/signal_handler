@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED on)
 string(APPEND CMAKE_CXX_FLAGS " -Wfatal-errors")
 
 
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED pybind11_catkin)
 
 catkin_package(
     INCLUDE_DIRS include
@@ -35,8 +35,20 @@ target_link_libraries(${PROJECT_NAME}
     ${catkin_LIBRARIES}
 )
 
+###################
+# Python bindings #
+###################
 
-# Demo
+pybind11_add_module(signal_handler_py srcpy/wrappers.cpp)
+target_link_libraries(signal_handler_py PRIVATE signal_handler ${catkin_LIBRARIES})
+set_target_properties(signal_handler_py PROPERTIES
+  LIBRARY_OUTPUT_DIRECTORY ${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_PYTHON_DESTINATION}
+  OUTPUT_NAME signal_handler)
+install(TARGETS signal_handler_py DESTINATION ${CATKIN_GLOBAL_PYTHON_DESTINATION})
+
+########
+# Demo #
+########
 add_executable(signal_handler_demo
     demos/demo.cpp
 )
