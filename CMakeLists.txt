@@ -37,15 +37,16 @@ list(APPEND all_target_exports export_${PROJECT_NAME})
 # Demo
 #
 
-add_executable(signal_handler_demo demos/demo.cpp)
+add_executable(demo_signal_handler demos/demo.cpp)
 # save the name for installation
-set(all_targets ${all_targets} signal_handler_demo)
+set(all_targets ${all_targets} demo_signal_handler)
 # dependencies
 target_include_directories(
-  signal_handler_demo
+  demo_signal_handler
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
          $<INSTALL_INTERFACE:include>)
-target_link_libraries(signal_handler_demo ${PROJECT_NAME})
+target_link_libraries(demo_signal_handler ${PROJECT_NAME})
+install(TARGETS demo_signal_handler RUNTIME DESTINATION lib/${PROJECT_NAME})
 
 #
 # Install and export
