@@ -17,6 +17,10 @@ string(APPEND CMAKE_CXX_FLAGS " -Wfatal-errors")
 #
 
 find_package(ament_cmake REQUIRED)
+find_package(pybind11_vendor REQUIRED)
+find_package(pybind11 REQUIRED)
+ament_export_dependencies(pybind11)
+
 
 #
 # Library
@@ -46,6 +50,27 @@ target_include_directories(
          $<INSTALL_INTERFACE:include>)
 target_link_libraries(demo_signal_handler ${PROJECT_NAME})
 install(TARGETS demo_signal_handler RUNTIME DESTINATION lib/${PROJECT_NAME})
+
+
+#
+# Python wrappers 
+#
+
+add_library(${PROJECT_NAME}_py MODULE srcpy/wrappers.cpp)
+target_link_libraries(${PROJECT_NAME}_py PRIVATE pybind11::module)
+target_link_libraries(${PROJECT_NAME}_py PRIVATE ${PYTHON_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}_py PRIVATE ${PROJECT_NAME})
+set_target_properties(${PROJECT_NAME}_py
+  PROPERTIES PREFIX "" SUFFIX "${PYTHON_MODULE_EXTENSION}"
+  OUTPUT_NAME ${PROJECT_NAME})
+target_include_directories(
+  ${PROJECT_NAME}_py
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+         $<INSTALL_INTERFACE:include> SYSTEM
+  PUBLIC ${PYTHON_INCLUDE_DIRS})
+_ament_cmake_python_get_python_install_dir()
+install(TARGETS ${PROJECT_NAME}_py DESTINATION ${PYTHON_INSTALL_DIR})
+
 
 #
 # Install and export
