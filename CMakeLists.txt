@@ -1,82 +1,88 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.10.2)
 project(signal_handler)
 
-# Specify C++ Standard
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED on)
+# Using C++17
+if(NOT CMAKE_C_STANDARD)
+  set(CMAKE_C_STANDARD 99)
+endif()
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 17)
+endif()
 
 # stop build on first error
 string(APPEND CMAKE_CXX_FLAGS " -Wfatal-errors")
 
+#
+# Dependendies
+#
 
-find_package(catkin REQUIRED pybind11_catkin)
+find_package(ament_cmake REQUIRED)
+find_package(pybind11_vendor REQUIRED)
+find_package(pybind11 REQUIRED)
+ament_export_dependencies(pybind11)
 
-catkin_package(
-    INCLUDE_DIRS include
-    LIBRARIES signal_handler
-#  CATKIN_DEPENDS
-#  DEPENDS
-)
 
-###########
-## Build ##
-###########
+#
+# Library
+#
 
-include_directories(
-    include
-    ${catkin_INCLUDE_DIRS}
-)
+add_library(${PROJECT_NAME} SHARED src/signal_handler.cpp src/exceptions.cpp)
+# Add the include dependencies
+target_include_directories(
+  ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                         $<INSTALL_INTERFACE:include>)
+# Export the target.
+ament_export_interfaces(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
+list(APPEND all_targets ${PROJECT_NAME})
+list(APPEND all_target_exports export_${PROJECT_NAME})
 
-add_library(${PROJECT_NAME}
-    src/signal_handler.cpp
-    src/exceptions.cpp
-)
-target_link_libraries(${PROJECT_NAME}
-    ${catkin_LIBRARIES}
-)
+#
+# Demo
+#
 
-###################
-# Python bindings #
-###################
+add_executable(demo_signal_handler demos/demo.cpp)
+# save the name for installation
+set(all_targets ${all_targets} demo_signal_handler)
+# dependencies
+target_include_directories(
+  demo_signal_handler
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+         $<INSTALL_INTERFACE:include>)
+target_link_libraries(demo_signal_handler ${PROJECT_NAME})
+install(TARGETS demo_signal_handler RUNTIME DESTINATION lib/${PROJECT_NAME})
 
-pybind11_add_module(signal_handler_py srcpy/wrappers.cpp)
-target_link_libraries(signal_handler_py PRIVATE signal_handler ${catkin_LIBRARIES})
-set_target_properties(signal_handler_py PROPERTIES
-  LIBRARY_OUTPUT_DIRECTORY ${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_PYTHON_DESTINATION}
-  OUTPUT_NAME signal_handler)
-install(TARGETS signal_handler_py DESTINATION ${CATKIN_GLOBAL_PYTHON_DESTINATION})
 
-########
-# Demo #
-########
-add_executable(signal_handler_demo
-    demos/demo.cpp
-)
-target_link_libraries(signal_handler_demo
-    ${catkin_LIBRARIES}
-    signal_handler
-)
+#
+# Python wrappers 
+#
 
-#############
-## Install ##
-#############
+add_library(${PROJECT_NAME}_py MODULE srcpy/wrappers.cpp)
+target_link_libraries(${PROJECT_NAME}_py PRIVATE pybind11::module)
+target_link_libraries(${PROJECT_NAME}_py PRIVATE ${PYTHON_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}_py PRIVATE ${PROJECT_NAME})
+set_target_properties(${PROJECT_NAME}_py
+  PROPERTIES PREFIX "" SUFFIX "${PYTHON_MODULE_EXTENSION}"
+  OUTPUT_NAME ${PROJECT_NAME})
+target_include_directories(
+  ${PROJECT_NAME}_py
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+         $<INSTALL_INTERFACE:include> SYSTEM
+  PUBLIC ${PYTHON_INCLUDE_DIRS})
+_ament_cmake_python_get_python_install_dir()
+install(TARGETS ${PROJECT_NAME}_py DESTINATION ${PYTHON_INSTALL_DIR})
 
-# Mark libraries for installation
-# See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
-install(TARGETS ${PROJECT_NAME}
-    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
-)
 
-# Mark cpp header files for installation
-install(DIRECTORY include/${PROJECT_NAME}/
-    DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-    FILES_MATCHING PATTERN "*.h"
-)
+#
+# Install and export
+#
 
-# Mark executables for installation
-install(TARGETS signal_handler_demo
-    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
+install(DIRECTORY include/ DESTINATION include)
+install(
+  TARGETS ${all_targets}
+  EXPORT ${all_target_exports}
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES
+  DESTINATION include)
+ament_package()

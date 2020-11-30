@@ -1,6 +1,5 @@
-**************************************************
 signal_handler - Utilities for C++ signal handling
-**************************************************
+--------------------------------------------------
 
 This package provides the static ``SignalHandler`` class which registers a
 signal handler for SIGINT and provides a method to check whether the signal was
@@ -19,23 +18,15 @@ no conflict because only one handler will be registered and all modules will use
 the same static method to check the status.
 
 
-Usage Example
-=============
+### Usage Example
 
-See the `demo`_.
+See the [demo](demos/demo.cpp).
 
 
-Copyright
-=========
+### Copyright
 
 Copyright (c) 2020 Max Planck Gesellschaft
 
+### License
 
-License
-=======
-
-BSD 3-Clause License, see `LICENSE`_.
-
-
-.. _demo: demos/demo.cpp
-.. _LICENSE: LICENSE
+BSD 3-Clause License, see [LICENSE](LICENSE)
