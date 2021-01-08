@@ -17,7 +17,6 @@ string(APPEND CMAKE_CXX_FLAGS " -Wfatal-errors")
 #
 
 find_package(ament_cmake REQUIRED)
-find_package(pybind11_vendor REQUIRED)
 find_package(pybind11 REQUIRED)
 ament_export_dependencies(pybind11)
 
