@@ -16,8 +16,14 @@ string(APPEND CMAKE_CXX_FLAGS " -Wfatal-errors")
 # Dependendies
 #
 
+find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_python REQUIRED)
 find_package(mpi_cmake_modules REQUIRED)
 find_package(pybind11 REQUIRED)
+ament_export_dependencies(
+  mpi_cmake_modules
+  pybind11)
+
 
 #
 # Library
@@ -29,7 +35,9 @@ target_include_directories(
   ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
                          $<INSTALL_INTERFACE:include>)
 # Export the target.
+ament_export_interfaces(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
 list(APPEND all_targets ${PROJECT_NAME})
+list(APPEND all_target_exports export_${PROJECT_NAME})
 
 #
 # Demo
@@ -57,7 +65,7 @@ target_link_libraries(${PROJECT_NAME}_py PRIVATE ${PYTHON_LIBRARIES})
 target_link_libraries(${PROJECT_NAME}_py PRIVATE ${PROJECT_NAME})
 set_target_properties(${PROJECT_NAME}_py
   PROPERTIES PREFIX "" SUFFIX "${PYTHON_MODULE_EXTENSION}"
-  OUTPUT_NAME ${PROJECT_NAME})
+  OUTPUT_NAME ${PROJECT_NAME}_wrp)
 target_include_directories(
   ${PROJECT_NAME}_py
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -65,6 +73,13 @@ target_include_directories(
   PUBLIC ${PYTHON_INCLUDE_DIRS})
 get_python_install_dir(python_install_dir)
 install(TARGETS ${PROJECT_NAME}_py DESTINATION ${python_install_dir})
+
+
+#
+# Python Native code 
+#
+ament_python_install_package(${PROJECT_NAME} PACKAGE_DIR python/${PROJECT_NAME})
+
 
 #
 # building documentation
@@ -81,7 +96,7 @@ install(DIRECTORY include/ DESTINATION include)
 # command to install the library and binaries
 install(
   TARGETS ${all_targets}
-  EXPORT ${PROJECT_NAME}Targets
+  EXPORT ${all_target_exports}
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
@@ -89,4 +104,4 @@ install(
   DESTINATION include)
 
 # Export this package as a cmake package.
-generate_cmake_package()
+ament_package()

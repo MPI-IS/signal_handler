@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<?xml-model
+   href="http://download.ros.org/schema/package_format3.xsd"
+   schematypens="http://www.w3.org/2001/XMLSchema"?>
+
+<package format="3">
+
+  <name>signal_handler</name>
+  <version>1.0.0</version>
+  <description>catcking interrupt signal from keyboatd</description>
+  <author email="felix.widemaier@tuebingen.mpg.de">Felix Widemaier</author>
+  <maintainer email="felix.widemaier@tuebingen.mpg.de">Felix Widemaier</maintainer>
+  <license>BSD 3-Clause</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>mpi_cmake_modules</depend>
+  <depend>pybind11_vendor</depend>
+
+  <test_depend>ament_cmake_gtest</test_depend>
+  <test_depend>ament_cmake_nose</test_depend>
+  
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+
+</package>
