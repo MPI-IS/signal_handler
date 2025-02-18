@@ -5,7 +5,7 @@ PYBIND11_MODULE(signal_handler, m)
 {
     m.def("init", []() { signal_handler::SignalHandler::initialize(); });
 
-    m.def("has_received_sigint", []() {
-        return signal_handler::SignalHandler::has_received_sigint();
-    });
+    m.def("has_received_sigint",
+          []()
+          { return signal_handler::SignalHandler::has_received_sigint(); });
 }
